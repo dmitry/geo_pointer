@@ -1,0 +1,4 @@
+ul
+  - locations.each do |(name), (lat, lng)|
+    li
+      a href="/#{lat},#{lng}" = name
