@@ -1,6 +1,5 @@
 require 'open-uri'
 
-require 'active_support/all'
 require 'rgeo'
 require 'rgeo-geojson'
 

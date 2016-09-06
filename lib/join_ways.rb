@@ -80,7 +80,7 @@ class JoinWays
   end
 
   def add_way(way)
-    if get_from_either_end(way).present?
+    unless get_from_either_end(way).empty?
       raise StandardError, 'Call to add_way would overwrite existing way(s)'
     end
     self.endpoints[way.first] = way
