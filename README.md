@@ -28,6 +28,4 @@ Use `rackup` in development or `puma`, `passenger` or other `rack` supported ser
 
 - Allow to setup own overpass API (through the docker-compose) and change setting in the code to use this server
 - Add docker file for fast deployment (with puma http server)
-- Change everything to use only `rgeo` gem
-- Optimize speed and refactor code
 - Add more tests of different locations

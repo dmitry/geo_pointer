@@ -1,27 +1,10 @@
 require 'open-uri'
 
-require 'georuby'
 require 'active_support/all'
-require 'georuby-ext/georuby/point'
-require 'georuby-ext/georuby/line_string'
-require 'georuby-ext/georuby/multi_polygon'
-require 'georuby-ext/georuby/polygon'
-require 'georuby-ext/georuby/geometry'
-require 'georuby-ext/georuby/srid'
-require 'georuby-ext/rgeo/feature/rgeo'
-require 'georuby-ext/rgeo/feature/geometry'
-require 'georuby-ext/rgeo/feature/geometry_collection'
 require 'rgeo'
 require 'rgeo-geojson'
 
-require 'endpoint_converter'
-
-class GeoRuby::SimpleFeatures::Srid
-  def rgeo_factory
-    @rgeo_factory ||= RGeo::Geos.factory(:native_interface => :capi)
-  end
-end
-
+require 'join_ways'
 
 class Overpass
   # TODO move to settings or env variables
@@ -33,21 +16,23 @@ class Overpass
       inner_rings = join_ways(inner_geometries)
 
       outer_rings.map do |outer_ring|
-        GeoRuby::SimpleFeatures::Polygon.from_linear_rings([outer_ring] + inner_rings).to_rgeo.buffer(0)
+        factory.polygon(outer_ring, inner_rings).buffer(0)
       end
     end
 
     def join_ways(ways)
-      EndpointConverter.new(ways).closed_ways
+      JoinWays.to_closed(ways).map do |way|
+        factory.line_string(
+          way.map do |(lon, lat)|
+            factory.point(lon, lat)
+          end
+        )
+      end
     end
 
-    def way_geometry(nodes)
-      points = nodes.map do |node|
-        GeoRuby::SimpleFeatures::Point.from_x_y(node['lon'], node['lat'], 4326)
-      end
-
-      if points.present? &&  1 < points.count
-        GeoRuby::SimpleFeatures::LineString.from_points(points, 4326)
+    def ways_to_points(ways)
+      ways.map do |way|
+        [way['lon'], way['lat']]
       end
     end
 
@@ -58,9 +43,9 @@ class Overpass
       members.each do |member|
         if member['type'] == 'way'
           if member['role'] == 'inner'
-            inner_ways << way_geometry(member['geometry'])
+            inner_ways << ways_to_points(member['geometry'])
           elsif member['role'] == 'outer' || member['role'].blank?
-            outer_ways << way_geometry(member['geometry'])
+            outer_ways << ways_to_points(member['geometry'])
           else
             raise "Wrong way role = #{member['role']}"
           end
@@ -113,19 +98,23 @@ class Overpass
     end
 
     def cache_fetch(id)
-      filename = "cache/#{id}"
-      if File.exists?(filename)
-        data = nil
-        File.open(filename, 'r') do |f|
-          data = Marshal.load(f.read)
-        end
-        data
+      if [nil, 'development'].include?(ENV['RACK_ENV'])
+        yield
       else
-        data = yield
-        File.open(filename, 'w') do |f|
-          f.write(Marshal.dump(data))
+        filename = "cache/#{id}"
+        if File.exists?(filename)
+          data = nil
+          File.open(filename, 'r') do |f|
+            data = Marshal.load(f.read)
+          end
+          data
+        else
+          data = yield
+          File.open(filename, 'w') do |f|
+            f.write(Marshal.dump(data))
+          end
+          data
         end
-        data
       end
     end
 
