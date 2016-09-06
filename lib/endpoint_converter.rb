@@ -53,14 +53,16 @@ class EndpointConverter
       raise StandardError, "Trying to join a way to a closed way"
     end
 
-    if way.points.first == other.points.first
-      new_points = other.reverse.points[0..-2] + way.points
-    elsif way.points.first == other.points.last
-      new_points = other.points[0..-2] + way.points
-    elsif way.points.last == other.points.first
-      new_points = way.points[0..-2] + other.points
-    elsif way.points.last == other.points.last
-      new_points = way.points[0..-2] + other.reverse.points
+    other_points = other.points
+    way_points = way.points
+    if way_points.first == other_points.first
+      new_points = other.points.reverse[0..-2] + way_points
+    elsif way_points.first == other_points.last
+      new_points = other_points[0..-2] + way_points
+    elsif way_points.last == other_points.first
+      new_points = way_points[0..-2] + other_points
+    elsif way_points.last == other_points.last
+      new_points = way_points[0..-2] + other.points.reverse
     else
       raise StandardError, "Trying to join two ways with no end point in common"
     end

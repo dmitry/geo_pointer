@@ -1,2 +1,5 @@
 geojsons
+cache
+profiler
 .idea
+coverage

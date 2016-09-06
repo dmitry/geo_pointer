@@ -12,9 +12,16 @@ require 'georuby-ext/rgeo/feature/rgeo'
 require 'georuby-ext/rgeo/feature/geometry'
 require 'georuby-ext/rgeo/feature/geometry_collection'
 require 'rgeo'
-require 'geo_ruby/geojson'
+require 'rgeo-geojson'
 
 require 'endpoint_converter'
+
+class GeoRuby::SimpleFeatures::Srid
+  def rgeo_factory
+    @rgeo_factory ||= RGeo::Geos.factory(:native_interface => :capi)
+  end
+end
+
 
 class Overpass
   # TODO move to settings or env variables
@@ -26,7 +33,7 @@ class Overpass
       inner_rings = join_ways(inner_geometries)
 
       outer_rings.map do |outer_ring|
-        GeoRuby::SimpleFeatures::Polygon.from_linear_rings([outer_ring] + inner_rings)
+        GeoRuby::SimpleFeatures::Polygon.from_linear_rings([outer_ring] + inner_rings).to_rgeo.buffer(0)
       end
     end
 
@@ -50,9 +57,9 @@ class Overpass
 
       members.each do |member|
         if member['type'] == 'way'
-          if member['role'] == "inner"
+          if member['role'] == 'inner'
             inner_ways << way_geometry(member['geometry'])
-          elsif member['role'] == "outer" || member['role'].blank?
+          elsif member['role'] == 'outer' || member['role'].blank?
             outer_ways << way_geometry(member['geometry'])
           else
             raise "Wrong way role = #{member['role']}"
@@ -60,11 +67,7 @@ class Overpass
         end
       end
 
-      boundary_polygons = extract_relation_polygon(outer_ways, inner_ways)
-
-      if boundary_polygons.present?
-        GeoRuby::SimpleFeatures::MultiPolygon.from_polygons(boundary_polygons)
-      end
+      extract_relation_polygon(outer_ways, inner_ways).inject(:+)
     end
 
     def get_geojson(lat, lng)
@@ -73,18 +76,83 @@ class Overpass
       result = open(url).read
       data = JSON.parse(result)
 
-      to_geojson(data).to_json
+      RGeo::GeoJSON.encode(to_features(data)).to_json
     end
 
-    def to_geojson(data)
-      features = data['elements'].map do |relation|
-        id = "#{relation['type']}-#{relation['id']}"
-        geometry = to_relation(relation['members'])
-        tags = {name: relation['tags']['name']}
-        feature = GeoRuby::GeoJSONFeature.new(geometry, tags, id)
-        feature
+    def to_features(data)
+      features = data['elements'].
+        select { |relation| relation['tags']['name'] && ['administrative'].include?(relation['tags']['boundary']) }.
+        map { |relation| to_feature(relation) }.
+        group_by { |feature| feature.properties['admin_level'].to_i }.
+        flat_map { |admin_level, features| admin_level.zero? ? features : features.sort_by { |feature| feature['id'].to_i }.first }.
+        sort_by { |v| 0 - v.properties['area'] }
+
+      RGeo::GeoJSON::FeatureCollection.new(features)
+    end
+
+    def to_feature(relation)
+      id = "#{relation['type']}-#{relation['id']}"
+      geometry = cache_fetch id do
+        to_relation(relation['members'])
       end
-      GeoRuby::GeoJSONFeatureCollection.new(features).to_json
+
+      properties = relation['tags'].clone
+      bounding_box = RGeo::Cartesian::BoundingBox.create_from_geometry(geometry)
+      properties.merge!(
+        'translations' => translations(relation['tags']),
+        'area' => geometry.area,
+        'bounding_box' => {
+          min_x: bounding_box.min_x,
+          max_x: bounding_box.max_x,
+          min_y: bounding_box.min_y,
+          max_y: bounding_box.max_y,
+        }
+      )
+
+      RGeo::GeoJSON::Feature.new(geometry, id, properties)
+    end
+
+    def cache_fetch(id)
+      filename = "cache/#{id}"
+      if File.exists?(filename)
+        data = nil
+        File.open(filename, 'r') do |f|
+          data = Marshal.load(f.read)
+        end
+        data
+      else
+        data = yield
+        File.open(filename, 'w') do |f|
+          f.write(Marshal.dump(data))
+        end
+        data
+      end
+    end
+
+    def to_geojson(features)
+      features.each do |v|
+        File.open("geojsons/#{v.feature_id}", 'w') do |f|
+          f.write(RGeo::GeoJSON.encode(v))
+        end
+      end
+    end
+
+    def translations(tags)
+      list = tags.map do |key, value|
+        _, locale = key.match(/\Aname:(.+)/).to_a
+        if locale
+          [locale, value]
+        end
+      end.compact
+      hash = list.to_h
+      unless hash['en']
+        hash['en'] = tags['name']
+      end
+      hash
+    end
+
+    def factory
+      @factory ||= RGeo::Geos.factory(native_interface: :capi)
     end
   end
 end
