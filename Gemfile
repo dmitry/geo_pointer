@@ -4,6 +4,7 @@ gem 'sinatra'
 gem 'slim'
 gem 'rgeo'
 gem 'rgeo-geojson'
+gem 'json'
 
 group :test do
   gem 'rspec'

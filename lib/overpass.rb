@@ -2,6 +2,7 @@ require 'open-uri'
 
 require 'rgeo'
 require 'rgeo-geojson'
+require 'json'
 
 require 'join_ways'
 
