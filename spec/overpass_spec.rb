@@ -40,4 +40,11 @@ describe 'hierarchy of' do
     expect('FeatureCollection').to eq json['type']
     expect(json['features'].size).to eq 2
   end
+
+  it 'barcelona', :vcr => true do
+    response = Overpass.get_geojson(41.381003,2.146518)
+    json = JSON.parse(response)
+    expect('FeatureCollection').to eq json['type']
+    expect(json['features'].size).to eq 7
+  end
 end

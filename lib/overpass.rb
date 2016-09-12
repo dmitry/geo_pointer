@@ -44,7 +44,7 @@ class Overpass
         if member['type'] == 'way'
           if member['role'] == 'inner'
             inner_ways << ways_to_points(member['geometry'])
-          elsif member['role'] == 'outer' || member['role'].blank?
+          elsif member['role'] == 'outer' || member['role'].empty?
             outer_ways << ways_to_points(member['geometry'])
           else
             raise "Wrong way role = #{member['role']}"
