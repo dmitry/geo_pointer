@@ -26,6 +26,14 @@ describe 'hierarchy of' do
     expect(json['features'].size).to eq 6
   end
 
+  it 'dublin without historic', :vcr => true do
+    response = Overpass.get_geojson(53.338893, -6.239656)
+    json = JSON.parse(response)
+    expect('FeatureCollection').to eq json['type']
+    expect(json['features'].map { |v| v['properties']['name'] }).to eq(["Ireland", "Leinster", "County Dublin", "Dublin", "South Dock ED"])
+    expect(json['features'].size).to eq 5
+  end
+
   it 'seychelles', :vcr => true do
     response = Overpass.get_geojson(-4.6261077, 55.446254)
     json = JSON.parse(response)

@@ -67,6 +67,7 @@ class Overpass
     def to_features(data)
       features = data['elements'].
         select { |relation| relation['tags']['name'] && ['administrative'].include?(relation['tags']['boundary']) }.
+        select { |relation| relation['tags']['historic'] != 'yes' }.
         map { |relation| to_feature(relation) }.
         group_by { |feature| feature.properties['admin_level'].to_i }.
         flat_map { |admin_level, features| admin_level.zero? ? features : features.sort_by { |feature| feature['id'].to_i }.first }.
