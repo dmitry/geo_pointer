@@ -61,7 +61,7 @@ class Overpass
       result = open(url).read
       data = JSON.parse(result)
 
-      RGeo::GeoJSON.encode(to_features(data)).to_json
+      RGeo::GeoJSON.encode(to_features(data))
     end
 
     def to_features(data)

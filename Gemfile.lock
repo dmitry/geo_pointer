@@ -8,6 +8,7 @@ GEM
     docile (1.1.5)
     hashdiff (0.3.0)
     json (2.0.2)
+    oj (2.17.4)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -54,7 +55,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  json
+  oj
   rack-test
   rgeo
   rgeo-geojson
