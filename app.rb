@@ -2,7 +2,9 @@ require 'sinatra'
 require 'overpass'
 
 EXAMPLE_LOCATIONS = {
-  'Hamburg' => [53, 10]
+  'Hamburg' => [53, 10],
+  'Dublin' => [53.3, -6.2],
+  'Puerto de la Cruz' => [28.41, -16.54],
 }
 
 class App < Sinatra::Base
@@ -17,6 +19,6 @@ class App < Sinatra::Base
 
   get '/:lat,:lng' do
     content_type :json
-    Oj.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f))
+    Oj.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f), mode: :compat)
   end
 end

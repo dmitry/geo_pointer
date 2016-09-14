@@ -1,4 +1,12 @@
+p Choose one of the following locations and receive GeoJSON with the hierarchy of the bounding boxes back:
+
 ul
   - locations.each do |(name), (lat, lng)|
     li
       a href="/#{lat},#{lng}" = name
+
+p
+  | Check the source code of the
+  a.a href="http://github.com/dmitry/geo_pointer"
+    | Geo Pointer
+  |  on the github

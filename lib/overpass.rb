@@ -59,7 +59,7 @@ class Overpass
       url = "http://#{OVERPASS_HOST}/api/interpreter?data=#{URI.escape("[out:json];is_in(#{lat},#{lng});rel(pivot);out geom;")}"
 
       result = open(url).read
-      data = JSON.parse(result)
+      data = Oj.load(result)
 
       RGeo::GeoJSON.encode(to_features(data))
     end
@@ -88,10 +88,10 @@ class Overpass
         'translations' => translations(relation['tags']),
         'area' => geometry.area,
         'bounding_box' => {
-          min_x: bounding_box.min_x,
-          max_x: bounding_box.max_x,
-          min_y: bounding_box.min_y,
-          max_y: bounding_box.max_y,
+          'min_x' => bounding_box.min_x,
+          'max_x' => bounding_box.max_x,
+          'min_y' => bounding_box.min_y,
+          'max_y' => bounding_box.max_y,
         }
       )
 
