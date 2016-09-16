@@ -24,6 +24,10 @@ You can try out demo, but please don't use it in production as it could be chang
 
 Use `rackup` in development or `puma`, `passenger` or other `rack` supported server to run in the production.
 
+## Setup own Overpass API server
+
+Please follow to the installation guide using docker image: [docker-overpass-api](https://github.com/dmitry/docker-overpass-api).
+
 # TODO
 
 - Allow to setup own overpass API (through the docker-compose) and change setting in the code to use this server
