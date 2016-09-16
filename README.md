@@ -28,8 +28,8 @@ Use `rackup` in development or `puma`, `passenger` or other `rack` supported ser
 
 Please follow to the installation guide using docker image: [docker-overpass-api](https://github.com/dmitry/docker-overpass-api).
 
+Setup `OVERPASS_HOST` environment to use this newly installed Overpass API server.
+
 # TODO
 
-- Allow to setup own overpass API (through the docker-compose) and change setting in the code to use this server
 - Add docker file for fast deployment (with puma http server)
-- Add more tests of different locations
