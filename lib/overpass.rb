@@ -7,8 +7,7 @@ require 'json'
 require 'join_ways'
 
 class Overpass
-  # TODO move to settings or env variables
-  OVERPASS_HOST = 'overpass-api.de'
+  OVERPASS_HOST = ENV['OVERPASS_HOST'] || 'overpass-api.de'
 
   class << self
     def extract_relation_polygon(outer_geometries, inner_geometries = [])
