@@ -32,6 +32,16 @@ Setup `OVERPASS_HOST` environment to use this newly installed Overpass API serve
 
 # Docker
 
+## Get overpass API
+
+```
+git submodule update --init --recursive
+```
+
+Download planet and filter it.
+
+## Run
+
 ```
 sudo docker-compose -p geo_pointer run web
 ```
