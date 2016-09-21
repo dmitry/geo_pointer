@@ -76,7 +76,6 @@ class Overpass
     end
 
     def to_feature(relation)
-      id = relation['id']
       geometry = to_relation(relation['members'])
 
       properties = relation['tags'].clone
@@ -92,7 +91,7 @@ class Overpass
         }
       )
 
-      RGeo::GeoJSON::Feature.new(geometry, id, properties)
+      RGeo::GeoJSON::Feature.new(geometry, relation['id'], properties)
     end
 
     def translations(tags)

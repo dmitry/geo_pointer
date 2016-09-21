@@ -19,6 +19,6 @@ class App < Sinatra::Base
 
   get '/:lat,:lng' do
     content_type :json
-    JSON.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f), mode: :compat)
+    JSON.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f))
   end
 end

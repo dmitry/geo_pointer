@@ -8,6 +8,8 @@ describe 'hierarchy of' do
     expect(JSON.dump(json).size).to eq 3480594
     expect(json['type']).to eq 'FeatureCollection'
     expect(json['features'].size).to eq 5
+    expect(json['features'].first['id']).to eq 51477
+    expect(json['features'].last['id']).to eq 179545
     expect(json['features'].first['properties']['translations'].size).to eq 252
   end
 
