@@ -16,7 +16,7 @@ class Overpass
 
       outer_rings.map do |outer_ring|
         factory.polygon(outer_ring, inner_rings).buffer(0)
-      end
+      end.compact
     end
 
     def join_ways(ways)
@@ -51,14 +51,14 @@ class Overpass
         end
       end
 
-      extract_relation_polygon(outer_ways, inner_ways).inject(:+)
+      factory.multi_polygon(extract_relation_polygon(outer_ways, inner_ways))
     end
 
     def get_geojson(lat, lng)
       url = "http://#{OVERPASS_HOST}/api/interpreter?data=#{URI.escape("[out:json];is_in(#{lat},#{lng});rel(pivot);out geom;")}"
 
       result = open(url).read
-      data = Oj.load(result)
+      data = JSON.load(result)
 
       RGeo::GeoJSON.encode(to_features(data))
     end
@@ -76,10 +76,8 @@ class Overpass
     end
 
     def to_feature(relation)
-      id = "#{relation['type']}-#{relation['id']}"
-      geometry = cache_fetch id do
-        to_relation(relation['members'])
-      end
+      id = relation['id']
+      geometry = to_relation(relation['members'])
 
       properties = relation['tags'].clone
       bounding_box = RGeo::Cartesian::BoundingBox.create_from_geometry(geometry)
@@ -95,35 +93,6 @@ class Overpass
       )
 
       RGeo::GeoJSON::Feature.new(geometry, id, properties)
-    end
-
-    def cache_fetch(id)
-      if [nil, 'development'].include?(ENV['RACK_ENV'])
-        yield
-      else
-        filename = "cache/#{id}"
-        if File.exists?(filename)
-          data = nil
-          File.open(filename, 'r') do |f|
-            data = Marshal.load(f.read)
-          end
-          data
-        else
-          data = yield
-          File.open(filename, 'w') do |f|
-            f.write(Marshal.dump(data))
-          end
-          data
-        end
-      end
-    end
-
-    def to_geojson(features)
-      features.each do |v|
-        File.open("geojsons/#{v.feature_id}", 'w') do |f|
-          f.write(RGeo::GeoJSON.encode(v))
-        end
-      end
     end
 
     def translations(tags)

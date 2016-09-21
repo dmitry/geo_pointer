@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 require 'overpass'
-require 'oj'
 
 describe 'hierarchy of' do
   it 'hamburg', :vcr => true do
     json = Overpass.get_geojson(53.5642280, 9.9830910)
-    expect(Oj.dump(json, mode: :compat).size).to eq 3480626
+    expect(JSON.dump(json).size).to eq 3480594
     expect(json['type']).to eq 'FeatureCollection'
     expect(json['features'].size).to eq 5
     expect(json['features'].first['properties']['translations'].size).to eq 252

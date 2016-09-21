@@ -10,7 +10,7 @@ EXAMPLE_LOCATIONS = {
 class App < Sinatra::Base
   error do
     content_type :json
-    Oj.dump('error' => 'Internal error. Write dmitry.polushkin@gmail.com to get the support.')
+    JSON.dump('error' => 'Internal error. Write dmitry.polushkin@gmail.com to get the support.')
   end
 
   get '/' do
@@ -19,6 +19,6 @@ class App < Sinatra::Base
 
   get '/:lat,:lng' do
     content_type :json
-    Oj.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f), mode: :compat)
+    JSON.dump(Overpass.get_geojson(params[:lat].to_f, params[:lng].to_f), mode: :compat)
   end
 end
