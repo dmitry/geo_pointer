@@ -16,7 +16,7 @@ class Overpass
 
       outer_rings.map do |outer_ring|
         factory.polygon(outer_ring, inner_rings).buffer(0)
-      end.compact
+      end
     end
 
     def join_ways(ways)
