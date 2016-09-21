@@ -1,0 +1,25 @@
+web:
+  build: .
+  command: 'bash -c ''bundle exec puma'''
+  working_dir: /app/user
+  restart: always
+  environment:
+    PORT: 8080
+  ports:
+    - '8080:8080'
+  links:
+    - overpass-api
+shell:
+  build: .
+  command: bash
+  working_dir: /app/user
+  environment:
+    PORT: 8080
+  ports:
+    - '8080:8080'
+  links:
+    - overpass-api
+  volumes:
+    - '.:/app/user'
+overpass-api:
+  build: ./docker-overpass-api/

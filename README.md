@@ -30,6 +30,8 @@ Please follow to the installation guide using docker image: [docker-overpass-api
 
 Setup `OVERPASS_HOST` environment to use this newly installed Overpass API server.
 
-# TODO
+# Docker
 
-- Add docker file for fast deployment (with puma http server)
+```
+sudo docker-compose -p geo_pointer run web
+```
