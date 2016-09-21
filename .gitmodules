@@ -1,0 +1,3 @@
+[submodule "docker-overpass-api"]
+	path = docker-overpass-api
+	url = https://github.com/dmitry/docker-overpass-api
