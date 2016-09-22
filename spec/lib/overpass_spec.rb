@@ -5,7 +5,7 @@ require 'overpass'
 describe 'hierarchy of' do
   it 'hamburg', :vcr => true do
     json = Overpass.get_geojson(53.5642280, 9.9830910)
-    expect(JSON.dump(json).size).to eq 3480594
+    expect(JSON.dump(json).size).to eq 3480775
     expect(json['type']).to eq 'FeatureCollection'
     expect(json['features'].size).to eq 5
     expect(json['features'].first['id']).to eq 51477
@@ -42,5 +42,18 @@ describe 'hierarchy of' do
     json = Overpass.get_geojson(41.381003,2.146518)
     expect('FeatureCollection').to eq json['type']
     expect(json['features'].size).to eq 7
+  end
+
+  it 'florianopolis', :vcr => true do
+    json = Overpass.get_geojson(-27.677571,-48.503033)
+    expect('FeatureCollection').to eq json['type']
+    expect(json['features'].size).to eq 7
+  end
+
+  it 'booklyn', :vcr => true do
+    json = Overpass.get_geojson(40.683038, -73.926095)
+    expect(json['features'].map { |v| v['properties']['name'] }).to eq(["United States of America", "New York", "New York City", "Kings County"])
+    expect('FeatureCollection').to eq json['type']
+    expect(json['features'].size).to eq 4
   end
 end

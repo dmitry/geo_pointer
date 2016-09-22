@@ -41,9 +41,9 @@ class Overpass
 
       members.each do |member|
         if member['type'] == 'way'
-          if member['role'] == 'inner'
+          if member['role'] == 'inner' || member['role'] == 'admin_centre'
             inner_ways << ways_to_points(member['geometry'])
-          elsif member['role'] == 'outer' || member['role'].empty?
+          elsif member['role'] == 'outer' || member['role'].empty? # subarea
             outer_ways << ways_to_points(member['geometry'])
           else
             raise "Wrong way role = #{member['role']}"

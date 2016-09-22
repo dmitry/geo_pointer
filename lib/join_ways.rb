@@ -28,7 +28,7 @@ class JoinWays
     end
 
     if endpoints.size != 0
-      raise StandardError, 'Unclosed boundaries'
+      p 'Unclosed boundaries'
     end
   end
 
