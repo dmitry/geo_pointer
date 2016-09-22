@@ -43,5 +43,7 @@ Download planet and filter it.
 ## Run
 
 ```
-sudo docker-compose -p geo_pointer run web
+sudo docker-compose -p geo_pointer up -d
 ```
+
+And wait around 1 hour before it starts and generates all required files.
