@@ -51,7 +51,7 @@ class Overpass
         end
       end
 
-      factory.multi_polygon(extract_relation_polygon(outer_ways, inner_ways))
+      extract_relation_polygon(outer_ways, inner_ways).inject(:+)
     end
 
     def get_geojson(lat, lng)
